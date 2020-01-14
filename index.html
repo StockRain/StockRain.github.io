@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+  <script type="text/javascript" src="./dat.gui.min.js"></script>
+  <script type="text/javascript" src="./data.js"></script>
+  <script type="text/javascript">
+    var obj = {
+        BollingerBands: false,
+        chanceToRise1: 0,
+        chanceToRise2: 0,
+
+        RSI: false,
+        RSI1:0,
+        RSI2:0,
+
+        MACD: true,
+        MACD1:-0.3,
+        MACD2:0.3,
+
+        CustomVOL: true,
+        riseRatio1:5,
+        riseRatio2:100,
+
+        刷新: function () {
+          update();
+        },
+    };
+
+    var gui = new dat.gui.GUI();
+
+    gui.remember(obj);
+
+    var f1 = gui.addFolder('BollingerBands');
+    f1.add(obj, 'BollingerBands');
+    f1.add(obj, 'chanceToRise1');
+    f1.add(obj, 'chanceToRise2');
+    f1.open();
+
+    var f2 = gui.addFolder('RSI');
+    f2.add(obj, 'RSI');
+    f2.add(obj, 'RSI1');
+    f2.add(obj, 'RSI2');
+    f2.open();
+
+    var f3 = gui.addFolder('MACD');
+    f3.add(obj, 'MACD');
+    f3.add(obj, 'MACD1');
+    f3.add(obj, 'MACD2');
+    f3.open();
+
+    var f4 = gui.addFolder('CustomVOL');
+    f4.add(obj, 'CustomVOL');
+    f4.add(obj, 'riseRatio1');
+    f4.add(obj, 'riseRatio2');
+    f4.open();
+
+    gui.add(obj , '刷新');
+  </script>
+
+  <pre id="intro">
+    默认设置根据MACD和CustomVOL(成交量)筛选
+    筛选结果满足：MACD1 < MACD < MACD2
+                riseRatio1 < 成交量增长倍数 < riseRatio2
+  </pre>
+  <pre id="json"></pre>
+
+  <script type="text/javascript">
+    function update(){
+      console.log(data,obj)
+      document.getElementById("json").innerHTML = 
+      JSON.stringify(data.filter(stockFilter),null,2)
+    }
+
+    function stockFilter(stock) {
+      result = true
+      if(obj.BollingerBands){
+        result = result && stock.BollingerBands[4] > obj.chanceToRise1 
+        && stock.BollingerBands[4] < obj.chanceToRise2
+      }
+      if(obj.RSI){
+        result = result && stock.RSI > obj.RSI1
+        && stock.RSI < obj.RSI2
+      }
+      if(obj.MACD){
+        result = result && stock.MACD > obj.MACD1 
+        && stock.MACD < obj.MACD2
+      }
+      if(obj.CustomVOL){
+        result = result && stock.CustomVOL > obj.riseRatio1 
+        && stock.CustomVOL < obj.riseRatio2
+      }
+      return result
+    }
+
+  </script>
+
+</body>
+</html>
